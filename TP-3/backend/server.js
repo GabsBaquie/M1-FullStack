@@ -2,6 +2,7 @@ require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const express = require("express");
 const usersRouter = require("./routes/users");
 const requestLogger = require("./middlewares/requestLogger");
+const errorHandler = require("./middlewares/errorHandler");
 const connectDB = require("./config/db");
 
 const app = express();
@@ -15,6 +16,9 @@ app.use(express.json());
 
 // Monter les routes users sous le préfixe /api/users
 app.use("/api/users", usersRouter);
+
+// Middleware d'erreurs global (APRÈS toutes les routes)
+app.use(errorHandler);
 
 const startServer = async () => {
   await connectDB();

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("../models/userModel");
 
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res, next) => {
   try {
     const { role } = req.query;
     const filter = role ? { role } : {};
@@ -13,15 +13,11 @@ const getAllUsers = async (req, res) => {
       data: users,
     });
   } catch (error) {
-    console.error("getAllUsers error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    next(error);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -46,15 +42,11 @@ const getUserById = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.error("getUserById error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    next(error);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   try {
     const { name, email, role } = req.body;
 
@@ -72,27 +64,11 @@ const createUser = async (req, res) => {
       data: newUser,
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "Cet email est déjà utilisé par un autre utilisateur",
-      });
-    }
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        success: false,
-        message: error.message || "Données invalides",
-      });
-    }
-    console.error("createUser error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    next(error);
   }
 };
 
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -126,27 +102,11 @@ const updateUser = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "Cet email est déjà utilisé par un autre utilisateur",
-      });
-    }
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        success: false,
-        message: error.message || "Données invalides",
-      });
-    }
-    console.error("updateUser error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    next(error);
   }
 };
 
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -168,11 +128,7 @@ const deleteUser = async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("deleteUser error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-    });
+    next(error);
   }
 };
 
