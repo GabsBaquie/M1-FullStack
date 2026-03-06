@@ -1,0 +1,210 @@
+{
+  "info": {
+    "name": "TP2 - Users API",
+    "description": "Collection pour tester l'API REST des utilisateurs (TP Séance 2)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "createdUserId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Scénario complet",
+      "item": [
+        {
+          "name": "1. GET - Liste tous les users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users",
+            "description": "Vérifie que les 3 utilisateurs initiaux sont retournés (code 200)"
+          }
+        },
+        {
+          "name": "2. POST - Créer un user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.id) {",
+                  "    pm.collectionVariables.set('createdUserId', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Postman\",\n  \"email\": \"test@postman.com\",\n  \"role\": \"user\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users",
+            "description": "Crée un nouvel utilisateur, note l'id retourné (code 201)"
+          }
+        },
+        {
+          "name": "3. GET - Récupérer le user créé",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{createdUserId}}",
+            "description": "Récupère l'utilisateur créé avec son id (code 200)"
+          }
+        },
+        {
+          "name": "4. PUT - Modifier le rôle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/{{createdUserId}}",
+            "description": "Modifie le rôle de l'utilisateur (code 200)"
+          }
+        },
+        {
+          "name": "5. GET - Vérifier 4 users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users",
+            "description": "Vérifie que la liste contient maintenant 4 utilisateurs (code 200)"
+          }
+        },
+        {
+          "name": "6. DELETE - Supprimer le user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{createdUserId}}",
+            "description": "Supprime l'utilisateur créé (code 204)"
+          }
+        },
+        {
+          "name": "7. GET - User supprimé (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{createdUserId}}",
+            "description": "Tente de récupérer l'utilisateur supprimé (code 404)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cas d'erreur",
+      "item": [
+        {
+          "name": "POST - Sans name ni email (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/users",
+            "description": "Doit retourner 400 Bad Request"
+          }
+        },
+        {
+          "name": "GET - Id inexistant (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/9999",
+            "description": "Doit retourner 404"
+          }
+        },
+        {
+          "name": "PUT - Id inexistant (404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/9999",
+            "description": "Doit retourner 404"
+          }
+        },
+        {
+          "name": "DELETE - Id inexistant (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/9999",
+            "description": "Doit retourner 404"
+          }
+        },
+        {
+          "name": "POST - Email dupliqué (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Duplicate\",\n  \"email\": \"alice@example.com\",\n  \"role\": \"user\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users",
+            "description": "Bonus B - Doit retourner 409 Conflict"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bonus",
+      "item": [
+        {
+          "name": "GET - Filtre par rôle admin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users?role=admin",
+            "description": "Bonus A - Retourne uniquement les admins"
+          }
+        }
+      ]
+    }
+  ]
+}
